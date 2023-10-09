@@ -92,7 +92,7 @@
     <root level="info">
         <appender-ref ref="FILE_ERROR"/>
         <appender-ref ref="FILE_WARN"/>
-        <appender-ref ref="FILE_I NFO "/>
+        <appender-ref ref="FILE_INFO"/>
         <appender-ref ref="STDOUT"/>
     </root>
 
