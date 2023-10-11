@@ -1,4 +1,4 @@
-var CONTEXT_PATH = "/nkcommunity"; nkcommunity
+var CONTEXT_PATH = "/nkcommunity";
 
 window.alert = function(message) {
 	if(!$(".alert-box").length) {
