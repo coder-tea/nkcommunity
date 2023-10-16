@@ -4,6 +4,7 @@ package com.codertea.nkcommunity.controller;
 import com.codertea.nkcommunity.entity.User;
 import com.codertea.nkcommunity.service.UserService;
 import com.codertea.nkcommunity.util.CommunityConstant;
+import com.codertea.nkcommunity.util.CommunityUtil;
 import com.google.code.kaptcha.Producer;
 import com.sun.org.apache.xpath.internal.operations.Mod;
 import org.apache.commons.lang3.StringUtils;
@@ -13,10 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 
 import javax.imageio.ImageIO;
 import javax.servlet.ServletOutputStream;
@@ -47,6 +45,7 @@ public class LoginController implements CommunityConstant {
         return "/site/register";
     }
 
+    // 返回登录页面
     @RequestMapping(path = "/login", method = RequestMethod.GET)
     public String getLoginPage() {
         return "/site/login";
@@ -104,6 +103,7 @@ public class LoginController implements CommunityConstant {
         }
     }
 
+    // 处理在登录页面发起的登录请求
     @RequestMapping(path = "/login", method = RequestMethod.POST)
     public String login(String username, String password,
                         String code, boolean rememberme,
@@ -131,10 +131,62 @@ public class LoginController implements CommunityConstant {
         }
     }
 
+    // 处理退出请求
     @RequestMapping(path = "/logout", method = RequestMethod.GET)
     public String logout(@CookieValue("ticket") String ticket) {
         userService.logout(ticket);
         return "redirect:/login";
+    }
+
+    // 打开忘记密码页面
+    @RequestMapping(path = "/forget", method = RequestMethod.GET)
+    public String getForgetPage() {
+        return "/site/forget";
+    }
+
+    // 在忘记密码页面的表单中输入注册的邮箱，点击获取验证码按钮，服务器为该邮箱发送一份验证码
+    @RequestMapping(path = "/forget/code", method = RequestMethod.GET)
+    @ResponseBody
+    public String getForgetCode(String email, Model model,
+                                HttpSession session) {
+        if(StringUtils.isBlank(email)) {
+            return CommunityUtil.getJSONString(1, "邮箱不能为空！");
+        }
+        Map<String, Object> map = userService.getForgetCode(email);
+        if(map.containsKey("forgetCode")) {
+            // TODO:如何设置失效时间？
+            //  验证码存在共享问题(且不论啥分布式session同步不同步)
+            //问题描述：忘记密码页面中，输入邮箱A，获取验证码；此时将邮箱改为B，输入邮箱A获取的验证码，此时可以修改密码
+            //此处问题主要在于LoginController.java下，getForgetCode方法和resetPassword方法中，存与取验证码都是基于seesion的key("verifyCode")，未作用户区分，简单进行修改即可，比如
+            // session.setAttribute(email+"_verifyCode", code);resetPassword方法下改为String code = (String) session.getAttribute(email+"_verifyCode");
+            session.setAttribute("forgetCode", map.get("forgetCode"));
+            return CommunityUtil.getJSONString(0);
+        } else {
+            return CommunityUtil.getJSONString(1, "查询不到该邮箱注册信息");
+        }
+    }
+
+    // 输入邮箱、验证码、新密码，进行密码重置
+    @RequestMapping(path = "/forget/reset", method = RequestMethod.POST)
+    public String resetPassword(String email, String forgetCode,
+                                String password, Model model,
+                                HttpSession session) {
+        String trueForgetCode = (String) session.getAttribute("forgetCode");
+        if (StringUtils.isBlank(trueForgetCode) || StringUtils.isBlank(forgetCode) || !trueForgetCode.equalsIgnoreCase(forgetCode)) {
+            model.addAttribute("forgetCodeMsg", "验证码错误!");
+            return "/site/forget";
+        }
+
+        Map<String, Object> map = userService.resetPassword(email, password);
+        if (map.containsKey("user")) {
+            model.addAttribute("msg","修改密码成功，请重新登录");
+            model.addAttribute("target","/login");
+            return "/site/operate-result";
+        } else {
+            model.addAttribute("emailMsg", map.get("emailMsg"));
+            model.addAttribute("passwordMsg", map.get("passwordMsg"));
+            return "/site/forget";
+        }
     }
 }
 

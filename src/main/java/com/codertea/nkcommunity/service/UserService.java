@@ -7,6 +7,7 @@ import com.codertea.nkcommunity.entity.User;
 import com.codertea.nkcommunity.util.CommunityConstant;
 import com.codertea.nkcommunity.util.CommunityUtil;
 import com.codertea.nkcommunity.util.MailClient;
+import com.google.code.kaptcha.Producer;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,6 +39,7 @@ public class UserService implements CommunityConstant {
 
     @Autowired
     private LoginTicketMapper loginTicketMapper;
+
 
     public User findUserById(int id) {
         return userMapper.selectById(id);
@@ -142,6 +144,51 @@ public class UserService implements CommunityConstant {
 
     public void logout(String ticket) {
         loginTicketMapper.updateStatus(ticket, 1);
+    }
+
+    // 验证邮箱的有效性，然后给邮箱发送一封邮件，内容是忘记密码后修改时需要输入的验证码
+    public Map<String, Object> getForgetCode(String email) {
+        HashMap<String, Object> map = new HashMap<>();
+        if(StringUtils.isBlank(email)) {
+            return map;
+        }
+        User user = userMapper.selectByEmail(email);
+        if(user == null) {
+            return map; // 该账号未注册
+        } else if(user.getStatus()==0) {
+            return map; // 该账号未激活
+        }
+        // 发送邮箱验证邮件
+        Context context = new Context();
+        context.setVariable("email", user.getEmail());
+        String forgetCode = CommunityUtil.generateUUID().substring(0, 4);
+        context.setVariable("forgetCode", forgetCode);
+        String content = templateEngine.process("/mail/forget", context);
+        mailClient.sendMail(user.getEmail(), "找回密码", content);
+        map.put("forgetCode", forgetCode);
+        return map;
+    }
+
+    // 修改email对应用户的密码为新密码password
+    public Map<String, Object> resetPassword(String email, String password) {
+        HashMap<String, Object> map = new HashMap<>();
+        if(StringUtils.isBlank(email)) {
+            map.put("emailMsg", "邮箱不能为空！");
+            return map;
+        }
+        if(StringUtils.isBlank(password)) {
+            map.put("password", "新密码不能为空！");
+            return map;
+        }
+        User user = userMapper.selectByEmail(email);
+        if(user == null) {
+            map.put("emailMsg", "该邮箱尚未注册！");
+            return map;
+        }
+        password = CommunityUtil.md5(password + user.getSalt());
+        userMapper.updatePassword(user.getId(), password);
+        map.put("user", user);
+        return map;
     }
 }
 

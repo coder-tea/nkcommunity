@@ -30,4 +30,5 @@ public class MailClientTest {
         System.out.println(content);
         mailClient.sendMail("1156248477@qq.com", "TEST", content);
     }
+
 }

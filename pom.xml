@@ -80,6 +80,12 @@
             <artifactId>kaptcha</artifactId>
             <version>2.3.2</version>
         </dependency>
+        <!--可以把其他对象转换为JSONObject对象-->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.28</version>
+        </dependency>
 
     </dependencies>
 
