@@ -190,6 +190,11 @@ public class UserService implements CommunityConstant {
         map.put("user", user);
         return map;
     }
+
+    // 根据提供的ticket字符串查找对应的LoginTicket
+    public LoginTicket findLoginTicket(String ticket) {
+        return loginTicketMapper.selectByTicket(ticket);
+    }
 }
 
 
