@@ -25,6 +25,7 @@ public class HomeController {
     @Autowired
     private UserService userService;
 
+    // 返回首页的页面
     @RequestMapping(path = "/index", method = RequestMethod.GET)
     public String getIndexPage(Model model, Page page) {
         System.out.println(page);

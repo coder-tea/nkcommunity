@@ -40,6 +40,7 @@ public class LoginController implements CommunityConstant {
     @Value("${server.servlet.context-path}")
     private String contextPath;
 
+    // 返回注册的页面
     @RequestMapping(path = "/register", method = RequestMethod.GET)
     public String getRegisterPage() {
         return "/site/register";
@@ -51,6 +52,7 @@ public class LoginController implements CommunityConstant {
         return "/site/login";
     }
 
+    // 注册请求
     @RequestMapping(path = "/register", method = RequestMethod.POST)
     public String register(Model model, User user) {
         Map<String, Object> map = userService.register(user);
@@ -66,6 +68,7 @@ public class LoginController implements CommunityConstant {
         }
     }
 
+    // 激活账号的请求
     @RequestMapping(path = "/activation/{userId}/{activationCode}", method = RequestMethod.GET)
     public String activation(Model model, @PathVariable("userId") int userId,
                              @PathVariable("activationCode") String activationCode) {
@@ -83,6 +86,7 @@ public class LoginController implements CommunityConstant {
         return "/site/operate-result";
     }
 
+    // 获取验证码图片，同时后端session存储验证码的文字
     @RequestMapping(path = "/kaptcha", method = RequestMethod.GET)
     public void getKaptcha(HttpServletResponse response, HttpSession session) {
         // 为什么是void，因为返回不是一个字符串，而是图片，所以手动response
