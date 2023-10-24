@@ -169,7 +169,7 @@ public class UserService implements CommunityConstant {
         return map;
     }
 
-    // 修改email对应用户的密码为新密码password
+    // 忘记密码，修改email对应用户的密码为新密码password
     public Map<String, Object> resetPassword(String email, String password) {
         HashMap<String, Object> map = new HashMap<>();
         if(StringUtils.isBlank(email)) {
@@ -199,6 +199,37 @@ public class UserService implements CommunityConstant {
     // 修改用户的头像为用户自主上传的头像
     public int resetHeader(int userId, String headerUrl) {
         return userMapper.updateHeader(userId, headerUrl);
+    }
+
+    // 修改user的密码为新密码
+    public Map<String, Object> resetPassword(User user, String oldPassword, String newPassword, String confirmPassword) {
+        HashMap<String, Object> map = new HashMap<>();
+        // 原密码为空，返回到账号设置页面
+        if(StringUtils.isBlank(oldPassword)) {
+            map.put("oldError", "请输入原密码！");
+            return map;
+        }
+        if(StringUtils.isBlank(newPassword)) {
+            map.put("newError", "请输入新密码！");
+            return map;
+        }
+        if(StringUtils.isBlank(confirmPassword)) {
+            map.put("confirmError", "请确认新密码！");
+            return map;
+        }
+        if(!newPassword.equals(confirmPassword)) {
+            map.put("confirmError", "确认密码和新密码不一致，请重新输入！");
+            return map;
+        }
+        // 检查原密码是否正确
+        if(!user.getPassword().equals(CommunityUtil.md5(oldPassword + user.getSalt()))) {
+            map.put("oldError", "原密码不正确！");
+            return map;
+        }
+        // 将密码修改为新密码
+        newPassword = CommunityUtil.md5(newPassword + user.getSalt());
+        userMapper.updatePassword(user.getId(), newPassword);
+        return map;
     }
 }
 

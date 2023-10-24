@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/user")
@@ -48,7 +49,7 @@ public class UserController {
         return "/site/setting";
     }
 
-    // 处理上传头像的请求
+    // 处理上传头像的请求并且更新用户头像
     @RequestMapping(value = "/upload", method = RequestMethod.POST)
     public String uploadHeader(MultipartFile headerImage, Model model) {
         if(headerImage == null) {
@@ -80,7 +81,7 @@ public class UserController {
         return "redirect:/index";
     }
 
-    // 获取服务器本地存放的用户头像
+    // 通过web访问路径，获取服务器本地存放的用户头像
     @RequestMapping(value = "/header/{fileName}", method = RequestMethod.GET)
     public void getHeader(@PathVariable("fileName") String fileName,
                           HttpServletResponse response) {
@@ -104,6 +105,22 @@ public class UserController {
         } catch (IOException e) {
             logger.error("读取图像失败：" + e.getMessage());
         }
+    }
 
+    // 处理修改密码的请求
+    @RequestMapping(value = "/modifypassword", method = RequestMethod.POST)
+    public String modifyPassword(String oldPassword, String newPassword, String confirmPassword, Model model) {
+        User user = hostHolder.getUser();
+        Map<String, Object> res = userService.resetPassword(user, oldPassword, newPassword, confirmPassword);
+        // 密码修改成功，并重定向到退出功能，强制用户重新登录
+        if(res == null || res.isEmpty()) {
+            return "redirect:/logout";
+        // 修改失败，返回到账号设置页面，给与相应提示
+        } else {
+            model.addAttribute("oldError", res.get("oldError"));
+            model.addAttribute("newError", res.get("newError"));
+            model.addAttribute("confirmError", res.get("confirmError"));
+            return "/site/setting";
+        }
     }
 }
