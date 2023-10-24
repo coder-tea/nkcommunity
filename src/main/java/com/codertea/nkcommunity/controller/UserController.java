@@ -1,5 +1,6 @@
 package com.codertea.nkcommunity.controller;
 
+import com.codertea.nkcommunity.annotation.LoginRequired;
 import com.codertea.nkcommunity.entity.User;
 import com.codertea.nkcommunity.service.UserService;
 import com.codertea.nkcommunity.util.CommunityUtil;
@@ -45,12 +46,14 @@ public class UserController {
 
     // 返回用户设置页面
     @RequestMapping(value = "/setting", method = RequestMethod.GET)
+    @LoginRequired
     public String getSettingPage() {
         return "/site/setting";
     }
 
     // 处理上传头像的请求并且更新用户头像
     @RequestMapping(value = "/upload", method = RequestMethod.POST)
+    @LoginRequired
     public String uploadHeader(MultipartFile headerImage, Model model) {
         if(headerImage == null) {
             model.addAttribute("error", "您还没有选择图片！");
@@ -109,6 +112,7 @@ public class UserController {
 
     // 处理修改密码的请求
     @RequestMapping(value = "/modifypassword", method = RequestMethod.POST)
+    @LoginRequired
     public String modifyPassword(String oldPassword, String newPassword, String confirmPassword, Model model) {
         User user = hostHolder.getUser();
         Map<String, Object> res = userService.resetPassword(user, oldPassword, newPassword, confirmPassword);
