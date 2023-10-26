@@ -196,6 +196,11 @@
 				dataType: 'text',
 				success: function (data) {
 					alert(data);
+					console.log(typeof(data)) // 是后端返回到的自定义json字符串string
+					data = $.parseJSON(data); // 解析成js对象
+					console.log(typeof(data));
+					console.log(data.code);
+					console.log(data.msg);
 				}
 			})
 		}

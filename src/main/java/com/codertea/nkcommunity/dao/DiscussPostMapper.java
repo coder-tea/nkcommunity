@@ -14,4 +14,6 @@ public interface DiscussPostMapper {
 
     // 查询帖子总数 @Param注解用于给参数取别名，当这个方法中只有一个参数时并且这个参数在mapper.xml文件中被使用在<if>标签中时，就必须要使用@Param注解来给这个参数取个别名
     int selectDiscussPostRows(@Param("userId") int userId);
+
+    int insertDiscussPost(DiscussPost discussPost);
 }
