@@ -4,13 +4,13 @@ package com.codertea.nkcommunity.util;
  * */
 public class Page {
 
-    // 当前页码
+    // 当前页码，默认为1
     private int current = 1;
-    // 显示上限
+    // 显示上限，默认为10
     private int limit = 10;
-    // 数据总数（用于计算总页数）
+    // 数据总数（用于计算总页数） 默认为0
     private int rows;
-    // 查询路径（用于复用分页链接）
+    // 查询路径（用于复用分页链接） 默认为空
     private String path;
 
     /*

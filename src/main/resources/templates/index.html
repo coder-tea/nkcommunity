@@ -143,7 +143,9 @@
 								<ul class="d-inline float-right">
 									<li class="d-inline ml-2">赞 11</li>
 									<li class="d-inline ml-2">|</li>
-									<li class="d-inline ml-2">回帖 7</li>
+									<li class="d-inline ml-2">
+										回帖 <span th:text="${map.post.commentCount}">7</span>
+									</li>
 								</ul>
 							</div>
 						</div>						
@@ -160,7 +162,8 @@
 							<a class="page-link" th:href="@{${page.path}(current=${page.current-1})}">上一页</a>
 						</li>
 						<!--.调用的是对应的get方法来获取值-->
-						<li th:class="|page-item ${i==page.current?'active':''}|" th:each="i:${#numbers.sequence(page.from,page.to)}">
+						<li th:class="|page-item ${i==page.current?'active':''}|"
+							th:each="i:${#numbers.sequence(page.from,page.to)}">
 							<a class="page-link" href="#" th:text="${i}">1</a>
 						</li>
 						<li th:class="|page-item ${page.current==page.total?'disabled':''}|">

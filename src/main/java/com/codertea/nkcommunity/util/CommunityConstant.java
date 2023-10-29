@@ -21,4 +21,13 @@ public interface CommunityConstant {
      * 勾选记住我的登录凭证的超时时间，以秒为单位 100天
      */
     int REMEMBER_EXPIRED_SECONDS = 100 * 24 * 60 * 60;
+
+    /**
+     * 评论的目标对象类型 帖子
+     * */
+    int ENTITY_TYPE_POST = 1;
+    /**
+     * 评论的目标对象类型 评论
+     * */
+    int ENTITY_TYPE_COMMENT = 2;
 }

@@ -5,14 +5,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import sun.text.normalizer.Trie;
 
 import javax.annotation.PostConstruct;
-import javax.swing.tree.TreeNode;
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.TreeMap;
 
 @Component
 public class SensitiveFilter {

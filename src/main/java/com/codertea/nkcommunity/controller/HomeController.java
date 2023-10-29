@@ -28,7 +28,6 @@ public class HomeController {
     // 返回首页的页面
     @RequestMapping(path = "/index", method = RequestMethod.GET)
     public String getIndexPage(Model model, Page page) {
-        System.out.println(page);
         // 方法调用前，SpringMVC会自动实例化Model和Page，并将Page注入Model，所以，
         // 在Thymeleaf中可以直接访问Page对象中的数据，而不需要专门model.addAttribute(page)了
         page.setRows(discussPostService.findDiscussPostRows(0));
