@@ -69,7 +69,10 @@ public class DiscussPostController implements CommunityConstant {
         page.setRows(post.getCommentCount());
 
         // VO view opbject其实就是一个Map，包含键值对，所以可以抽象地看成是一个对象
-        // 1.评论列表（评论：给帖子的评论；回复：给评论的评论）
+        // 1.评论列表
+        //      评论：给帖子的评论；
+        //      回复：给评论的评论。评论和回复都在广义的评论表里。
+        //      给回复的回复也属于回复，只不过有了target，让前端一看就知道是有指向性的回复的回复，方便前端做区别展示（例如 寒江雪：XXX Sissi回复寒江雪：XXX）
         List<Comment> comments = commentService.findCommentsByEntity(ENTITY_TYPE_POST, post.getId(), page.getOffset(), page.getLimit());
         // 1.为了把评论列表显示出来，我们需要转成VO列表
         List<Map<String, Object>> commentVOs = new ArrayList<>();
