@@ -4,19 +4,15 @@ import com.codertea.nkcommunity.entity.Message;
 import com.codertea.nkcommunity.entity.User;
 import com.codertea.nkcommunity.service.MessageService;
 import com.codertea.nkcommunity.service.UserService;
+import com.codertea.nkcommunity.util.CommunityUtil;
 import com.codertea.nkcommunity.util.HostHolder;
 import com.codertea.nkcommunity.util.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Controller
 public class MessageController {
@@ -61,7 +57,7 @@ public class MessageController {
 
     // 处理查询某一个会话中全部消息列表的请求
     @RequestMapping(path = "/letter/detail/{conversationId}", method = RequestMethod.GET)
-    public String get(@PathVariable("conversationId") String conversationId,  Model model, Page page) {
+    public String getConversationDetail(@PathVariable("conversationId") String conversationId,  Model model, Page page) {
         User user = hostHolder.getUser();
         // 设置分页信息
         page.setLimit(5);
@@ -78,12 +74,51 @@ public class MessageController {
         }
         model.addAttribute("letterVOs", letterVOs);
         // 私信对象的id,用于显示会话对象的头像和用户名
-        String[] ids = conversationId.split("_");
-        int id1 = Integer.parseInt(ids[0]);
-        int id2 = Integer.parseInt(ids[1]);
+        String[] idArray = conversationId.split("_");
+        int id1 = Integer.parseInt(idArray[0]);
+        int id2 = Integer.parseInt(idArray[1]);
         int targetId = user.getId() == id1 ? id2 : id1;
         User targetUser = userService.findUserById(targetId);
         model.addAttribute("targetUser", targetUser);
+        // 设置已读
+        List<Integer> ids = getLettersIds(letters);
+        if(!ids.isEmpty()) messageService.readMessage(ids);
         return "/site/letter-detail";
+    }
+
+    // 传入消息列表，返回其中属于当前用户的未读消息id列表，便于修改对应的消息为已读
+    public List<Integer> getLettersIds(List<Message> letters) {
+        List<Integer> ids = new ArrayList<>();
+        if(letters!=null) {
+            for (Message letter : letters) {
+                if(hostHolder.getUser().getId() == letter.getToId() && letter.getStatus() == 0) {
+                    ids.add(letter.getId());
+                }
+            }
+        }
+        return ids;
+    }
+
+    // 处理给toName用户发送私信的请求
+    @RequestMapping(path = "/letter/send", method = RequestMethod.POST)
+    @ResponseBody
+    public String sendLetter(String toName, String content) {
+        User target = userService.findUserByName(toName);
+        if(target == null) {
+            return CommunityUtil.getJSONString(1, "目标用户不存在！");
+        }
+        Message message = new Message();
+        message.setFromId(hostHolder.getUser().getId());
+        message.setToId(target.getId());
+        if(message.getFromId()<message.getToId()) {
+            message.setConversationId(message.getFromId()+"_"+message.getToId());
+        } else {
+            message.setConversationId(message.getToId()+"_"+message.getFromId());
+        }
+        message.setContent(content);
+        message.setStatus(0);
+        message.setCreateTime(new Date());
+        messageService.addMessage(message);
+        return CommunityUtil.getJSONString(0);
     }
 }

@@ -2,8 +2,10 @@ package com.codertea.nkcommunity.service;
 
 import com.codertea.nkcommunity.dao.MessageMapper;
 import com.codertea.nkcommunity.entity.Message;
+import com.codertea.nkcommunity.util.SensitiveFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.util.HtmlUtils;
 
 import java.util.List;
 
@@ -11,6 +13,9 @@ import java.util.List;
 public class MessageService {
     @Autowired
     private MessageMapper messageMapper;
+
+    @Autowired
+    private SensitiveFilter sensitiveFilter;
 
     // 分页查询当前用户的会话列表，针对每个会话只返回一条最新的私信,用作展示
     public List<Message> findConversations(int userId, int offset, int limit) {
@@ -36,5 +41,18 @@ public class MessageService {
     // 查询未读私信的数量。如果传入conversationId就查询当前用户的某一个会话中未读私信的数量；否则就查询当前用户所有会话中未读私信的数量
     public int findUnreadLetterCount(int userId, String conversationId) {
         return messageMapper.selectUnreadLetterCount(userId, conversationId);
+    }
+
+    // 增加消息
+    public int addMessage(Message message) {
+        // 过滤敏感词
+        message.setContent(HtmlUtils.htmlEscape(message.getContent()));
+        message.setContent(sensitiveFilter.filter(message.getContent()));
+        return messageMapper.insertMessage(message);
+    }
+
+    // 已读消息，修改他们的状态为已读
+    public int readMessage(List<Integer> ids) {
+        return messageMapper.updateStatus(ids, 1);
     }
 }
