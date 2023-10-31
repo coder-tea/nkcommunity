@@ -47,4 +47,10 @@ public class HomeController {
         model.addAttribute("discussPosts", res);
         return "/index";
     }
+
+    // 返回500到页面
+    @RequestMapping(path = "/error", method = RequestMethod.GET)
+    public String getErrorPage() {
+        return "/error/500";
+    }
 }
