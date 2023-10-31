@@ -121,4 +121,14 @@ public class MessageController {
         messageService.addMessage(message);
         return CommunityUtil.getJSONString(0);
     }
+
+    // 处理删除私信的请求
+    @RequestMapping(path = "/letter/erase", method = RequestMethod.POST)
+    @ResponseBody
+    public String eraseLetter(int id) {
+        ArrayList<Integer> ids = new ArrayList<>();
+        ids.add(id);
+        messageService.eraseMessage(ids);
+        return CommunityUtil.getJSONString(0);
+    }
 }

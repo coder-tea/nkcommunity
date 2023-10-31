@@ -55,4 +55,9 @@ public class MessageService {
     public int readMessage(List<Integer> ids) {
         return messageMapper.updateStatus(ids, 1);
     }
+
+    // 删除信息，修改状态为删除
+    public int eraseMessage(List<Integer> ids) {
+        return messageMapper.updateStatus(ids, 2);
+    }
 }
