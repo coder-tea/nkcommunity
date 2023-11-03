@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 // 统一处理异常
-// 这个注解只去扫描带有Controller注解的那些bean
+// @ControllerAdvice这个注解表示只去作用于带有Controller注解的那些bean
 @ControllerAdvice(annotations = Controller.class)
 public class ExceptionAdvice {
     private static final Logger logger = LoggerFactory.getLogger(ExceptionAdvice.class);

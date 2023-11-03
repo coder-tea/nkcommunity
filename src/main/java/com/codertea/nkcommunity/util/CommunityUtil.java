@@ -14,9 +14,9 @@ public class CommunityUtil {
     }
 
     // md5加密 hello->abc123  md5加盐加密 hello+123->abc123tyx
-    public static String md5(String key) {
-        if(StringUtils.isBlank(key)) return null;
-        return DigestUtils.md5DigestAsHex(key.getBytes());
+    public static String md5(String text) {
+        if(StringUtils.isBlank(text)) return null;
+        return DigestUtils.md5DigestAsHex(text.getBytes());
     }
 
     // 封装code、msg和数据map到json对象，然后编码成json字符串返回

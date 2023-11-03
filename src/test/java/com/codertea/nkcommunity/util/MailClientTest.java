@@ -28,7 +28,7 @@ public class MailClientTest {
         context.setVariable("username", "sunday");
         String content = templateEngine.process("/mail/demo", context);
         System.out.println(content);
-        mailClient.sendMail("1156248477@qq.com", "TEST", content);
+        mailClient.sendMail("XXX@qq.com", "TEST", content);
     }
 
 }

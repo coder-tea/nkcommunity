@@ -25,7 +25,7 @@ public class HomeController {
     @Autowired
     private UserService userService;
 
-    // 返回首页的页面
+    // 返回首页的页面，展示所有帖子
     @RequestMapping(path = "/index", method = RequestMethod.GET)
     public String getIndexPage(Model model, Page page) {
         // 方法调用前，SpringMVC会自动实例化Model和Page，并将Page注入Model，所以，
@@ -34,6 +34,7 @@ public class HomeController {
         page.setPath("/index");
 
         List<DiscussPost> discussPosts = discussPostService.findDiscussPosts(0, page.getOffset(), page.getLimit());
+        // VOs
         List<Map<String, Object>> res = new ArrayList<>();
         if(discussPosts != null) {
             for (DiscussPost discussPost : discussPosts) {

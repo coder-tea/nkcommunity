@@ -1,6 +1,6 @@
 $(function(){
 	$("#sendBtn").click(send_letter);
-	$(".close").click(delete_msg);
+	$("#closeMessageBtn").click(delete_msg);
 });
 
 function send_letter() {

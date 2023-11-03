@@ -66,6 +66,7 @@ public class UserController {
             model.addAttribute("error", "图片的格式不正确！");
             return "/site/setting";
         }
+        // 重命名，防止重名
         fileName = CommunityUtil.generateUUID() + suffix;
         File dest = new File(uploadPath + "/" + fileName);
         try {
@@ -86,8 +87,7 @@ public class UserController {
 
     // 通过web访问路径，获取服务器本地存放的用户头像
     @RequestMapping(value = "/header/{fileName}", method = RequestMethod.GET)
-    public void getHeader(@PathVariable("fileName") String fileName,
-                          HttpServletResponse response) {
+    public void getHeader(@PathVariable("fileName") String fileName, HttpServletResponse response) {
         // 在服务器上存放的物理路径
         fileName = uploadPath + "/" + fileName;
         // 文件后缀 png

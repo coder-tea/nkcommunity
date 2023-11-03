@@ -18,7 +18,7 @@ public class HostHolder {
         return users.get();
     }
     // 请求结束时清理当前线程的threadlocal防止占用内存。、
-    // 那么线程什么时候结束？当服务器对浏览器作出响应后，线程才被销毁。
+    // 那么线程什么时候结束？当服务器对浏览器作出响应后，线程就被销毁。
     public void clear() {
         users.remove();
     }

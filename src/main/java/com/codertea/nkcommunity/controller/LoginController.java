@@ -68,7 +68,7 @@ public class LoginController implements CommunityConstant {
         }
     }
 
-    // 激活账号的请求
+    // 点击激活邮件中的激活地址，激活账号的请求
     @RequestMapping(path = "/activation/{userId}/{activationCode}", method = RequestMethod.GET)
     public String activation(Model model, @PathVariable("userId") int userId,
                              @PathVariable("activationCode") String activationCode) {
@@ -109,11 +109,9 @@ public class LoginController implements CommunityConstant {
 
     // 处理在登录页面发起的登录请求
     @RequestMapping(path = "/login", method = RequestMethod.POST)
-    public String login(String username, String password,
-                        String code, boolean rememberme,
-                        Model model, HttpSession session,
-                        HttpServletResponse response) {
-        // 检查验证码
+    public String login(String username, String password, String code, boolean rememberme,
+                        Model model, HttpSession session, HttpServletResponse response) {
+        // 检查验证码 比较session里的验证码和传入的验证码是否一样
         String kaptcha = (String) session.getAttribute("kaptcha");
         if (StringUtils.isBlank(kaptcha) || StringUtils.isBlank(code) || !kaptcha.equalsIgnoreCase(code)) {
             model.addAttribute("codeMsg", "验证码不正确!");
@@ -151,17 +149,14 @@ public class LoginController implements CommunityConstant {
     // 在忘记密码页面的表单中输入注册的邮箱，点击获取验证码按钮，服务器为该邮箱发送一份验证码
     @RequestMapping(path = "/forget/code", method = RequestMethod.GET)
     @ResponseBody
-    public String getForgetCode(String email, Model model,
-                                HttpSession session) {
-        if(StringUtils.isBlank(email)) {
-            return CommunityUtil.getJSONString(1, "邮箱不能为空！");
-        }
+    public String getForgetCode(String email, HttpSession session) {
+        if(StringUtils.isBlank(email)) return CommunityUtil.getJSONString(1, "邮箱不能为空！");
         Map<String, Object> map = userService.getForgetCode(email);
         if(map.containsKey("forgetCode")) {
             // TODO:如何设置失效时间？
             //  验证码存在共享问题(且不论啥分布式session同步不同步)
-            //问题描述：忘记密码页面中，输入邮箱A，获取验证码；此时将邮箱改为B，输入邮箱A获取的验证码，此时可以修改密码
-            //此处问题主要在于LoginController.java下，getForgetCode方法和resetPassword方法中，存与取验证码都是基于seesion的key("verifyCode")，未作用户区分，简单进行修改即可，比如
+            // 问题描述：忘记密码页面中，输入邮箱A，获取验证码；此时将邮箱改为B，输入邮箱A获取的验证码，此时可以修改密码
+            // 此处问题主要在于LoginController.java下，getForgetCode方法和resetPassword方法中，存与取验证码都是基于seesion的key("verifyCode")，未作用户区分，简单进行修改即可，比如
             // session.setAttribute(email+"_verifyCode", code);resetPassword方法下改为String code = (String) session.getAttribute(email+"_verifyCode");
             session.setAttribute("forgetCode", map.get("forgetCode"));
             return CommunityUtil.getJSONString(0);
@@ -172,9 +167,7 @@ public class LoginController implements CommunityConstant {
 
     // 输入邮箱、验证码、新密码，进行密码重置
     @RequestMapping(path = "/forget/reset", method = RequestMethod.POST)
-    public String resetPassword(String email, String forgetCode,
-                                String password, Model model,
-                                HttpSession session) {
+    public String resetPassword(String email, String forgetCode, String password, Model model, HttpSession session) {
         String trueForgetCode = (String) session.getAttribute("forgetCode");
         if (StringUtils.isBlank(trueForgetCode) || StringUtils.isBlank(forgetCode) || !trueForgetCode.equalsIgnoreCase(forgetCode)) {
             model.addAttribute("forgetCodeMsg", "验证码错误!");

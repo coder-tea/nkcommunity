@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
 
-//拦截带有LoginRequired注解的方法，然后判断是否登陆，登录了就可以访问，否则就拒绝
+// 拦截带有LoginRequired注解的方法，然后判断是否登陆，登录了就可以访问，否则就拒绝
 @Component
 public class LoginRequiredInterceptor implements HandlerInterceptor {
     @Autowired
@@ -24,7 +24,7 @@ public class LoginRequiredInterceptor implements HandlerInterceptor {
             HandlerMethod handlerMethod = (HandlerMethod) handler;
             Method method = handlerMethod.getMethod();
             LoginRequired loginRequired = method.getAnnotation(LoginRequired.class);
-            // 需要登录才能访问
+            // 带有LoginRequired注解，需要登录才能访问
             if(loginRequired != null) {
                 // 没登录
                 if(hostHolder.getUser() == null) {

@@ -29,7 +29,6 @@ public class SensitiveFilter {
             InputStream is = this.getClass().getClassLoader().getResourceAsStream("sensitive-words.txt");
             // 从字节流中读取不太方便，需要转化成字符流，字符流也不方便，所以再转换为缓冲流
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is));
-
         ) {
             String keyword;
             while ((keyword=bufferedReader.readLine())!=null) {

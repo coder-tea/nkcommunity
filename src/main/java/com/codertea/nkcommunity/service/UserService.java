@@ -28,6 +28,7 @@ public class UserService implements CommunityConstant {
     @Autowired
     private MailClient mailClient;
 
+    // TemplateEngine是thymeleaf的模板引擎核心类
     @Autowired
     private TemplateEngine templateEngine;
 
@@ -45,6 +46,7 @@ public class UserService implements CommunityConstant {
         return userMapper.selectById(id);
     }
 
+    // 注册的业务逻辑，生成激活码，发送激活邮件
     public Map<String, Object> register(User user) {
         // 校验参数并判断是否已经存在
         Map<String, Object> map = new HashMap<>();
@@ -70,6 +72,7 @@ public class UserService implements CommunityConstant {
         u = userMapper.selectByEmail(user.getEmail());
         if(u != null) {
             map.put("emailMsg", "该邮箱已经被注册！");
+            return map;
         }
         // 注册用户
         user.setSalt(CommunityUtil.generateUUID().substring(0, 5));
@@ -100,8 +103,8 @@ public class UserService implements CommunityConstant {
         }
     }
 
-    public Map<String, Object> login(String username, String password,
-                                     int expiredSeconds) {
+    // 登陆的业务逻辑，检查账号密码，生成登录凭证存到数据库，返回登陆凭证
+    public Map<String, Object> login(String username, String password, long expiredSeconds) {
         // expiredSeconds是本次登录的有效时间，单位是秒
         HashMap<String, Object> map = new HashMap<>();
         // 空值处理

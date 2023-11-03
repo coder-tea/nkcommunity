@@ -57,7 +57,7 @@ public class DiscussPostController implements CommunityConstant {
     // 处理查看帖子详情的请求，根据帖子id
     @RequestMapping(path = "/detail/{discussPostId}", method = RequestMethod.GET)
     public String getDiscussPostDetail(@PathVariable("discussPostId") int discussPostId, Model model, Page page) {
-        // 帖子内容
+        // 帖子的基本内容
         DiscussPost post = discussPostService.findDiscussPostById(discussPostId);
         model.addAttribute("post", post);
         // 需要把发帖人的信息也找出来，有两种思路，一是在mybatis mapper里查帖子时写关联查询，效率高但是耦合；二是在这里用帖子id做关联查询。耦合度低
@@ -70,9 +70,6 @@ public class DiscussPostController implements CommunityConstant {
 
         // VO view opbject其实就是一个Map，包含键值对，所以可以抽象地看成是一个对象
         // 1.评论列表
-        //      评论：给帖子的评论；
-        //      回复：给评论的评论。评论和回复都在广义的评论表里。
-        //      给回复的回复也属于回复，只不过有了target，让前端一看就知道是有指向性的回复的回复，方便前端做区别展示（例如 寒江雪：XXX Sissi回复寒江雪：XXX）
         List<Comment> comments = commentService.findCommentsByEntity(ENTITY_TYPE_POST, post.getId(), page.getOffset(), page.getLimit());
         // 1.为了把评论列表显示出来，我们需要转成VO列表
         List<Map<String, Object>> commentVOs = new ArrayList<>();
