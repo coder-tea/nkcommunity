@@ -145,6 +145,7 @@ public class UserController implements CommunityConstant {
             throw new RuntimeException("该用户不存在！");
         }
         model.addAttribute("user", user);
+
         // 获赞数量
         int likeCount = likeService.findUserLikeCount(user.getId());
         model.addAttribute("likeCount", likeCount);

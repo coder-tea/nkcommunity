@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.jws.WebParam;
 import java.util.*;
 
 @Controller
@@ -137,5 +138,32 @@ public class DiscussPostController implements CommunityConstant {
         // 1.model加入评论Vo列表
         model.addAttribute("commentVOs", commentVOs);
         return "/site/discuss-detail";
+    }
+
+    // 处理查看某人发过的帖子的请求
+    @RequestMapping(path = "/mypost/{userId}", method = RequestMethod.GET)
+    public String getMyPostPage(@PathVariable("userId") Integer userId, Page page, Model model) {
+        User user = userService.findUserById(userId);
+        if(user == null) {
+            throw new RuntimeException("该用户不存在！");
+        }
+        model.addAttribute("user", user);
+
+        page.setLimit(5);
+        page.setRows(discussPostService.findDiscussPostRows(userId));
+        page.setPath("/discusspost/mypost/"+userId);
+        List<DiscussPost> discussPosts = discussPostService.findDiscussPosts(userId, page.getOffset(), page.getLimit());
+        List<Map<String, Object>> discusspostVOs = new ArrayList<>();
+        if(discussPosts!=null) {
+            for (DiscussPost discussPost : discussPosts) {
+                Map<String, Object> discusspostVO = new HashMap<>();
+                discusspostVO.put("discussPost", discussPost);
+                discusspostVO.put("likeCount", likeService.findEntityLikeCount(ENTITY_TYPE_POST, discussPost.getId()));
+                discusspostVOs.add(discusspostVO);
+            }
+        }
+        model.addAttribute("discussPostNum", discusspostVOs.size());
+        model.addAttribute("discussPostVOs", discusspostVOs);
+        return "/site/my-post";
     }
 }
