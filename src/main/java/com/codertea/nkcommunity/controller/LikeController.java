@@ -23,10 +23,10 @@ public class LikeController {
     // 处理点赞的请求，返回对应实体的点赞数量和当前用户是否点赞的状态
     @RequestMapping(path = "/like", method = RequestMethod.POST)
     @ResponseBody
-    public String like(int entityType, int entityId) {
+    public String like(int entityType, int entityId, int entityUserId) {
         User user = hostHolder.getUser();
         // 点赞
-        likeService.like(user.getId(), entityType, entityId);
+        likeService.like(user.getId(), entityType, entityId, entityUserId);
         long likeCount = likeService.findEntityLikeCount(entityType, entityId);
         int likeStatus = likeService.findEntityLikeStatus(user.getId(), entityType, entityId);
         HashMap<String, Object> map = new HashMap<>();
@@ -35,17 +35,3 @@ public class LikeController {
         return CommunityUtil.getJSONString(0, null, map);
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

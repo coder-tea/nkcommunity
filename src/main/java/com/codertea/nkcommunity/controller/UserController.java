@@ -2,6 +2,7 @@ package com.codertea.nkcommunity.controller;
 
 import com.codertea.nkcommunity.annotation.LoginRequired;
 import com.codertea.nkcommunity.entity.User;
+import com.codertea.nkcommunity.service.LikeService;
 import com.codertea.nkcommunity.service.UserService;
 import com.codertea.nkcommunity.util.CommunityUtil;
 import com.codertea.nkcommunity.util.HostHolder;
@@ -43,6 +44,9 @@ public class UserController {
 
     @Autowired
     private HostHolder hostHolder;
+
+    @Autowired
+    private LikeService likeService;
 
     // 返回用户设置页面
     @RequestMapping(value = "/setting", method = RequestMethod.GET)
@@ -126,5 +130,19 @@ public class UserController {
             model.addAttribute("confirmError", res.get("confirmError"));
             return "/site/setting";
         }
+    }
+
+    // 返回某个人的个人主页页面
+    @RequestMapping(value = "/profile/{userId}", method = RequestMethod.GET)
+    public String getProfilePage(@PathVariable("userId") int userId, Model model) {
+        User user = userService.findUserById(userId);
+        if(user==null) {
+            throw new RuntimeException("该用户不存在！");
+        }
+        model.addAttribute("user", user);
+        // 获赞数量
+        int likeCount = likeService.findUserLikeCount(user.getId());
+        model.addAttribute("likeCount", likeCount);
+        return "/site/profile";
     }
 }

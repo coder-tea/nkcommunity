@@ -84,7 +84,7 @@
 							发布于 <b th:text="${#dates.format(post.createTime,'yyyy-MM-dd HH:mm:ss')}">2019-04-15 15:32:18</b>
 							<ul class="d-inline float-right">
 								<li class="d-inline ml-2">
-									<a href="javascript:;" th:onclick="|like(this,1,${post.id});|" class="text-primary">
+									<a href="javascript:;" th:onclick="|like(this,1,${post.id},${post.userId});|" class="text-primary">
 										<b th:text="${likeStatus==1?'已赞':'赞'}">赞</b>
 										<i th:text="${likeCount}">11</i>
 									</a>
@@ -141,7 +141,7 @@
 								</span>
 								<ul class="d-inline float-right">
 									<li class="d-inline ml-2">
-										<a href="javascript:;" th:onclick="|like(this,2,${commentVO.comment.id});|" class="text-primary">
+										<a href="javascript:;" th:onclick="|like(this,2,${commentVO.comment.id},${commentVO.comment.userId});|" class="text-primary">
 											<b th:text="${commentVO.likeStatus==1?'已赞':'赞'}">赞</b>
 											(<i th:text="${commentVO.likeCount}">11</i>)
 										</a>
@@ -174,7 +174,7 @@
 										<span th:text="${#dates.format(replyVO.reply.createTime, 'yyyy-MM-dd HH:mm:SS')}">2019-04-15 15:32:18</span>
 										<ul class="d-inline float-right">
 											<li class="d-inline ml-2">
-												<a href="javascript:;" th:onclick="|like(this,2,${replyVO.reply.id});|" class="text-primary">
+												<a href="javascript:;" th:onclick="|like(this,2,${replyVO.reply.id},${replyVO.reply.userId});|" class="text-primary">
 													<b th:text="${replyVO.likeStatus==1?'已赞':'赞'}">赞</b>
 													(<i th:text="${replyVO.likeCount}">11</i>)
 												</a>
@@ -332,10 +332,10 @@
 			// 为啥img th:src="@{/katpcha}" 因为@{}的作用就相当于加了 "/nkcommunity";
 			$("#kaptcha").attr("src", path);
 		}
-		function like(btn, entityType, entityId) {
+		function like(btn, entityType, entityId, entityUserId) {
 			$.post(
 					CONTEXT_PATH+"/like",
-					{"entityType":entityType, "entityId":entityId},
+					{"entityType":entityType, "entityId":entityId, "entityUserId":entityUserId},
 					function (data) {
 						data = $.parseJSON(data);
 						if(data.code==0) {
