@@ -23,11 +23,15 @@ public interface CommunityConstant {
     int REMEMBER_EXPIRED_SECONDS = 100 * 24 * 60 * 60;
 
     /**
-     * 评论的目标对象类型 帖子
+     * 实体类型 帖子
      * */
     int ENTITY_TYPE_POST = 1;
     /**
-     * 评论的目标对象类型 评论
+     * 实体类型 评论
      * */
     int ENTITY_TYPE_COMMENT = 2;
+    /**
+     * 实体类型 用户
+     * */
+    int ENTITY_TYPE_USER = 3;
 }

@@ -20,7 +20,7 @@ public class LikeController {
     @Autowired
     private HostHolder hostHolder;
 
-    // 处理点赞的请求，返回对应实体的点赞数量和当前用户是否点赞的状态
+    // 处理点赞取消点赞的请求，返回对应实体的点赞数量和当前用户是否点赞的状态
     @RequestMapping(path = "/like", method = RequestMethod.POST)
     @ResponseBody
     public String like(int entityType, int entityId, int entityUserId) {
