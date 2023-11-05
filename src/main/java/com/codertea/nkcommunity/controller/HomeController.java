@@ -3,7 +3,9 @@ package com.codertea.nkcommunity.controller;
 import com.codertea.nkcommunity.entity.DiscussPost;
 import com.codertea.nkcommunity.entity.User;
 import com.codertea.nkcommunity.service.DiscussPostService;
+import com.codertea.nkcommunity.service.LikeService;
 import com.codertea.nkcommunity.service.UserService;
+import com.codertea.nkcommunity.util.CommunityConstant;
 import com.codertea.nkcommunity.util.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -17,13 +19,16 @@ import java.util.List;
 import java.util.Map;
 
 @Controller
-public class HomeController {
+public class HomeController implements CommunityConstant {
 
     @Autowired
     private DiscussPostService discussPostService;
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private LikeService likeService;
 
     // 返回首页的页面，展示所有帖子
     @RequestMapping(path = "/index", method = RequestMethod.GET)
@@ -42,6 +47,9 @@ public class HomeController {
                 map.put("post", discussPost);
                 User user = userService.findUserById(discussPost.getUserId());
                 map.put("user", user);
+                // 赞
+                long entityLikeCount = likeService.findEntityLikeCount(ENTITY_TYPE_POST, discussPost.getId());
+                map.put("likeCount", entityLikeCount);
                 res.add(map);
             }
         }

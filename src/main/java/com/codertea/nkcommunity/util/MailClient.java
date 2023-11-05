@@ -16,7 +16,7 @@ import javax.mail.internet.MimeMessage;
 public class MailClient {
     public static final Logger logger = LoggerFactory.getLogger(MailClient.class);
 
-    // JavaMailSender是Spring Email的核心组件，负责发送邮件。s
+    // JavaMailSender是Spring Email的核心组件，负责发送邮件。
     @Autowired
     private JavaMailSender mailSender;
 
