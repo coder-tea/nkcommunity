@@ -15,4 +15,10 @@ public interface CommentMapper {
 
     // 增加一条评论
     int insertComment(Comment comment);
+
+    // 找到某个user发表的某一类型的全部回复
+    List<Comment> selectCommentsByUserId(int userId, int entityType, int offset, int limit);
+
+    // 查询某个user发表的某一类型的全部回复的数量
+    int selectCountByUserId(int userId, int entityType);
 }

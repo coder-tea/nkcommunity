@@ -19,7 +19,6 @@ public class CommentService implements CommunityConstant {
     @Autowired
     private CommentMapper commentMapper;
 
-
     @Autowired
     private SensitiveFilter sensitiveFilter;
 
@@ -53,5 +52,15 @@ public class CommentService implements CommunityConstant {
             discussPostService.resetCommentCount(comment.getEntityId(), curCount);
         }
         return rows;
+    }
+
+    // 找到某个user发表的全部回帖
+    public List<Comment> findCommentsByUserId(int userId, int offset, int limit) {
+        return commentMapper.selectCommentsByUserId(userId, ENTITY_TYPE_POST, offset, limit);
+    }
+
+    // 查询某个user发表的回帖的数量
+    public int findCommentCountByUserId(int userId) {
+        return commentMapper.selectCountByUserId(userId, ENTITY_TYPE_POST);
     }
 }

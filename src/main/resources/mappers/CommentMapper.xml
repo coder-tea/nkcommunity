@@ -27,4 +27,16 @@
         insert into comment(<include refid="insertFields"/>)
         values(#{userId},#{entityType},#{entityId},#{targetId},#{content},#{status},#{createTime})
     </insert>
+    <select id="selectCommentsByUserId">
+        select <include refid="selectFields"/>
+        from comment
+        where status=0 and user_id=#{userId} and entity_type=#{entityType}
+        order by create_time desc
+        limit #{offset},#{limit}
+    </select>
+    <select id="selectCountByUserId">
+        select count(id)
+        from comment
+        where status=0 and entity_type=#{entityType} and user_id=#{userId}
+    </select>
 </mapper>

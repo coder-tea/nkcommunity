@@ -162,7 +162,8 @@ public class DiscussPostController implements CommunityConstant {
                 discusspostVOs.add(discusspostVO);
             }
         }
-        model.addAttribute("discussPostNum", discusspostVOs.size());
+        int discussPostRows = discussPostService.findDiscussPostRows(userId);
+        model.addAttribute("discussPostNum", discussPostRows);
         model.addAttribute("discussPostVOs", discusspostVOs);
         return "/site/my-post";
     }
