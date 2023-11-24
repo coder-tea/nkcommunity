@@ -2,6 +2,7 @@ package com.codertea.nkcommunity.service;
 
 import com.codertea.nkcommunity.dao.CommentMapper;
 import com.codertea.nkcommunity.entity.Comment;
+import com.codertea.nkcommunity.entity.DiscussPost;
 import com.codertea.nkcommunity.util.CommunityConstant;
 import com.codertea.nkcommunity.util.SensitiveFilter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,5 +63,10 @@ public class CommentService implements CommunityConstant {
     // 查询某个user发表的回帖的数量
     public int findCommentCountByUserId(int userId) {
         return commentMapper.selectCountByUserId(userId, ENTITY_TYPE_POST);
+    }
+
+    // 查询id为指定值的Comment
+    public Comment findCommentById(int id) {
+        return commentMapper.selectCommentById(id);
     }
 }

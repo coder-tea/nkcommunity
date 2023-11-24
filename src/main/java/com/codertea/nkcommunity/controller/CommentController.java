@@ -2,10 +2,13 @@ package com.codertea.nkcommunity.controller;
 
 import com.codertea.nkcommunity.entity.Comment;
 import com.codertea.nkcommunity.entity.DiscussPost;
+import com.codertea.nkcommunity.entity.Event;
 import com.codertea.nkcommunity.entity.User;
+import com.codertea.nkcommunity.event.EventProducer;
 import com.codertea.nkcommunity.service.CommentService;
 import com.codertea.nkcommunity.service.DiscussPostService;
 import com.codertea.nkcommunity.service.UserService;
+import com.codertea.nkcommunity.util.CommunityConstant;
 import com.codertea.nkcommunity.util.HostHolder;
 import com.codertea.nkcommunity.util.Page;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +22,7 @@ import java.util.*;
 
 @Controller
 @RequestMapping("/comment")
-public class CommentController {
+public class CommentController implements CommunityConstant {
     @Autowired
     private CommentService commentService;
 
@@ -32,6 +35,9 @@ public class CommentController {
     @Autowired
     private DiscussPostService discussPostService;
 
+    @Autowired
+    private EventProducer eventProducer;
+
     // 处理在帖子详情页面点击增加评论的请求，完成后还要重定向到当前的帖子详情页面，所以要把帖子id也传过来
     @RequestMapping(path = "/add/{discussPostId}", method = RequestMethod.POST)
     public String addComment(@PathVariable("discussPostId") int discussPostId, Comment comment) {
@@ -41,6 +47,23 @@ public class CommentController {
         comment.setCreateTime(new Date());
         // 添加
         commentService.addComment(comment);
+
+        // 触发评论事件
+        Event event = new Event()
+                .setTopic(TOPIC_COMMENT)
+                .setUserId(hostHolder.getUser().getId())
+                .setEntityType(comment.getEntityType())
+                .setEntityId(comment.getEntityId())
+                .setData("postId", discussPostId);
+        if(comment.getEntityType() == ENTITY_TYPE_POST) {
+            DiscussPost target = discussPostService.findDiscussPostById(comment.getEntityId());
+            event.setEntityUserId(target.getUserId());
+        } else if(comment.getEntityType() == ENTITY_TYPE_COMMENT) {
+            Comment target = commentService.findCommentById(comment.getEntityId());
+            event.setEntityUserId(target.getUserId());
+        }
+        eventProducer.fireEvent(event);
+
         return "redirect:/discusspost/detail/"+discussPostId;
     }
 

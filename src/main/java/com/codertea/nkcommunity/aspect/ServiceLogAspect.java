@@ -31,6 +31,9 @@ public class ServiceLogAspect {
         // 浏览器输入http://127.0.0.1:8081/nkcommunity/index
         // 用户[127.0.0.1],在[2023-10-31 15:10:18],访问了[com.codertea.nkcommunity.service.UserService.findUserById]
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if(attributes == null) { // 如果不是通过Controller方法调用的Service，而是其他方式调用的service方法，比如eventconsumer在收到消息后调用service方法，就没有request对象，自然也没有IP,就不记日志了
+            return;
+        }
         HttpServletRequest request = attributes.getRequest();
         // ip地址
         String ip = request.getRemoteHost();

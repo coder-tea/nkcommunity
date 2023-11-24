@@ -21,4 +21,7 @@ public interface CommentMapper {
 
     // 查询某个user发表的某一类型的全部回复的数量
     int selectCountByUserId(int userId, int entityType);
+
+    // 根据id查找Comment
+    Comment selectCommentById(int id);
 }

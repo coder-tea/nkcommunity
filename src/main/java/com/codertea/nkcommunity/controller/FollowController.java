@@ -1,7 +1,9 @@
 package com.codertea.nkcommunity.controller;
 
 
+import com.codertea.nkcommunity.entity.Event;
 import com.codertea.nkcommunity.entity.User;
+import com.codertea.nkcommunity.event.EventProducer;
 import com.codertea.nkcommunity.service.FollowService;
 import com.codertea.nkcommunity.service.UserService;
 import com.codertea.nkcommunity.util.CommunityConstant;
@@ -31,6 +33,9 @@ public class FollowController implements CommunityConstant {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private EventProducer eventProducer;
+
     // 处理关注的请求
     @RequestMapping(path = "/follow", method = RequestMethod.POST)
     @ResponseBody
@@ -40,6 +45,16 @@ public class FollowController implements CommunityConstant {
             return CommunityUtil.getJSONString(403, "你还没有登录哦！");
         }
         followService.follow(user.getId(), entityType, entityId);
+
+        // 触发关注事件
+        Event event = new Event()
+                .setTopic(TOPIC_FOLLOW)
+                .setUserId(hostHolder.getUser().getId())
+                .setEntityType(entityType)
+                .setEntityId(entityId)
+                .setEntityUserId(entityId);
+        eventProducer.fireEvent(event);
+
         return CommunityUtil.getJSONString(0, "已关注！");
     }
 

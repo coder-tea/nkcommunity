@@ -39,4 +39,9 @@
         from comment
         where status=0 and entity_type=#{entityType} and user_id=#{userId}
     </select>
+    <select id="selectCommentById" resultType="Comment">
+        select <include refid="selectFields"/>
+        from comment
+        where id=#{id}
+    </select>
 </mapper>
