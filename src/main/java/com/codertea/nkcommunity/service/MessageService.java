@@ -60,4 +60,24 @@ public class MessageService {
     public int eraseMessage(List<Integer> ids) {
         return messageMapper.updateStatus(ids, 2);
     }
+
+    // 查询某个主题下userId的最新系统通知
+    public Message findLatestNotice(int userId, String topic) {
+        return messageMapper.selectLatestNotice(userId, topic);
+    }
+
+    // 查询某个主题下userId的系统通知总数
+    public int findNoticeCount(int userId, String topic) {
+        return messageMapper.selectNoticeCount(userId, topic);
+    }
+
+    // 查询userId未读的topic主题下系统通知数量 如果topic为null，查询的就是所有topic下未读通知数量的总和
+    public int findNoticeUnreadCount(int userId, String topic) {
+        return messageMapper.selectNoticeUnreadCount(userId, topic);
+    }
+
+    // 查询userId下某个主题所包含的通知列表
+    public List<Message> findNotices(int userId, String topic, int offset, int limit) {
+        return messageMapper.selectNotices(userId, topic, offset, limit);
+    }
 }

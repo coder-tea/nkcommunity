@@ -27,4 +27,16 @@ public interface MessageMapper {
 
     // 批量更改多条消息的状态
     int updateStatus(List<Integer> ids, int status);
+
+    // 查询某个主题下userId的最新系统通知
+    Message selectLatestNotice(int userId, String topic);
+
+    // 查询某个主题下userId的系统通知总数
+    int selectNoticeCount(int userId, String topic);
+
+    // 查询userId未读的topic主题下系统通知数量 如果topic为null，查询的就是所有topic下未读通知数量的总和
+    int selectNoticeUnreadCount(int userId, String topic);
+
+    // 查询userId下某个主题所包含的通知列表
+    List<Message> selectNotices(int userId, String topic, int offset, int limit);
 }
