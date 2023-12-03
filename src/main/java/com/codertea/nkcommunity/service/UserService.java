@@ -7,10 +7,12 @@ import com.codertea.nkcommunity.entity.User;
 import com.codertea.nkcommunity.util.CommunityConstant;
 import com.codertea.nkcommunity.util.CommunityUtil;
 import com.codertea.nkcommunity.util.MailClient;
+import com.codertea.nkcommunity.util.RedisKeyUtil;
 import com.google.code.kaptcha.Producer;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -19,6 +21,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class UserService implements CommunityConstant {
@@ -38,12 +41,25 @@ public class UserService implements CommunityConstant {
     @Value("${server.servlet.context-path}")
     private String contextPath;
 
+    /*@Autowired
+    private LoginTicketMapper loginTicketMapper;*/
+
     @Autowired
-    private LoginTicketMapper loginTicketMapper;
+    private RedisTemplate redisTemplate;
 
 
     public User findUserById(int id) {
-        return userMapper.selectById(id);
+        /*return userMapper.selectById(id);*/
+        // 尝试从缓存里取
+        String key = RedisKeyUtil.getUserKey(id);
+        User user = (User) redisTemplate.opsForValue().get(key);
+        // 从mysql里取,同时初始化缓存
+        if(user==null){
+            user = userMapper.selectById(id);
+            // 往redis里存
+            redisTemplate.opsForValue().set(key, user, 3600, TimeUnit.SECONDS);
+        }
+        return user;
     }
 
     // 注册的业务逻辑，生成激活码，发送激活邮件
@@ -97,6 +113,9 @@ public class UserService implements CommunityConstant {
         if(user.getStatus() == 1) return ACTIVATATION_REPEAT;
         else if(user.getActivationCode().equals(activationCode)) {
             userMapper.updateStatus(userId, 1);
+            // 删除缓存
+            String key = RedisKeyUtil.getUserKey(userId);
+            redisTemplate.delete(key);
             return ACTIVATATION_SUCCESS;
         } else {
             return ACTIVATATION_FAILURE;
@@ -139,14 +158,20 @@ public class UserService implements CommunityConstant {
         loginTicket.setTicket(CommunityUtil.generateUUID());
         loginTicket.setStatus(0);
         loginTicket.setExpired(new Date(System.currentTimeMillis() + expiredSeconds * 1000));
-        loginTicketMapper.insertLoginTicket(loginTicket);
+        /*loginTicketMapper.insertLoginTicket(loginTicket);*/
+        String key = RedisKeyUtil.getTicketKey(loginTicket.getTicket());
+        redisTemplate.opsForValue().set(key, loginTicket);
 
         map.put("ticket", loginTicket.getTicket());
         return map;
     }
 
     public void logout(String ticket) {
-        loginTicketMapper.updateStatus(ticket, 1);
+        /*loginTicketMapper.updateStatus(ticket, 1);*/
+        String key = RedisKeyUtil.getTicketKey(ticket);
+        LoginTicket loginTicket = (LoginTicket) redisTemplate.opsForValue().get(key);
+        loginTicket.setStatus(1);
+        redisTemplate.opsForValue().set(key, loginTicket);
     }
 
     // 验证邮箱的有效性，然后给邮箱发送一封邮件，内容是忘记密码后修改时需要输入的验证码
@@ -191,17 +216,28 @@ public class UserService implements CommunityConstant {
         password = CommunityUtil.md5(password + user.getSalt());
         userMapper.updatePassword(user.getId(), password);
         map.put("user", user);
+        // 删除缓存
+        String key = RedisKeyUtil.getUserKey(user.getId());
+        redisTemplate.delete(key);
         return map;
     }
 
     // 根据提供的ticket字符串查找对应的LoginTicket
     public LoginTicket findLoginTicket(String ticket) {
-        return loginTicketMapper.selectByTicket(ticket);
+        /*return loginTicketMapper.selectByTicket(ticket);*/
+        String key = RedisKeyUtil.getTicketKey(ticket);
+        LoginTicket loginTicket = (LoginTicket) redisTemplate.opsForValue().get(key);
+        return loginTicket;
     }
 
     // 修改用户的头像为用户自主上传的头像
     public int resetHeader(int userId, String headerUrl) {
-        return userMapper.updateHeader(userId, headerUrl);
+        /*return userMapper.updateHeader(userId, headerUrl);*/
+        int rows = userMapper.updateHeader(userId, headerUrl);
+        // 删除缓存
+        String key = RedisKeyUtil.getUserKey(userId);
+        redisTemplate.delete(key);
+        return rows;
     }
 
     // 修改user的密码为新密码
@@ -232,6 +268,9 @@ public class UserService implements CommunityConstant {
         // 将密码修改为新密码
         newPassword = CommunityUtil.md5(newPassword + user.getSalt());
         userMapper.updatePassword(user.getId(), newPassword);
+        // 删除缓存
+        String key = RedisKeyUtil.getUserKey(user.getId());
+        redisTemplate.delete(key);
         return map;
     }
 
@@ -239,9 +278,3 @@ public class UserService implements CommunityConstant {
         return userMapper.selectByName(username);
     }
 }
-
-
-
-
-
-

@@ -3,6 +3,7 @@ package com.codertea.nkcommunity.dao;
 import com.codertea.nkcommunity.entity.LoginTicket;
 import org.apache.ibatis.annotations.*;
 
+@Deprecated
 @Mapper
 public interface LoginTicketMapper {
     @Insert({
