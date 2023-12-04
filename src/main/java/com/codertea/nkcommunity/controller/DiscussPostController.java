@@ -2,7 +2,9 @@ package com.codertea.nkcommunity.controller;
 
 import com.codertea.nkcommunity.entity.Comment;
 import com.codertea.nkcommunity.entity.DiscussPost;
+import com.codertea.nkcommunity.entity.Event;
 import com.codertea.nkcommunity.entity.User;
+import com.codertea.nkcommunity.event.EventProducer;
 import com.codertea.nkcommunity.service.CommentService;
 import com.codertea.nkcommunity.service.DiscussPostService;
 import com.codertea.nkcommunity.service.LikeService;
@@ -40,6 +42,9 @@ public class DiscussPostController implements CommunityConstant {
     @Autowired
     private LikeService likeService;
 
+    @Autowired
+    private EventProducer eventProducer;
+
     // 处理发布帖子的异步请求
     @RequestMapping(path = "/add", method = RequestMethod.POST)
     @ResponseBody
@@ -56,6 +61,14 @@ public class DiscussPostController implements CommunityConstant {
         post.setStatus(0);
         post.setCreateTime(new Date());
         discussPostService.addDiscussPost(post);
+
+        // 触发发帖事件 更新es里的帖子信息
+        Event event = new Event()
+                .setTopic(TOPIC_PUBLISH)
+                .setUserId(user.getId())
+                .setEntityType(ENTITY_TYPE_POST)
+                .setEntityId(post.getId());
+        eventProducer.fireEvent(event);
         return CommunityUtil.getJSONString(0, "发布成功！");
     }
 

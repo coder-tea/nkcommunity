@@ -36,11 +36,12 @@ public interface CommunityConstant {
     int ENTITY_TYPE_USER = 3;
 
     /**
-     * Kafka主题： 评论 点赞 关注
+     * Kafka主题： 评论 点赞 关注 发帖(更新es里帖子的信息)
      * */
     String TOPIC_COMMENT = "comment";
     String TOPIC_LIKE = "like";
     String TOPIC_FOLLOW = "follow";
+    String TOPIC_PUBLISH = "publish";
 
     /**
      * 系统用户的ID
